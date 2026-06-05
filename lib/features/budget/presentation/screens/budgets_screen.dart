@@ -93,20 +93,22 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
           IconButton(
             icon: const Icon(Icons.calendar_month),
             onPressed: () async {
+              final authProvider = context.read<AuthProvider>();
               final date = await showDatePicker(
                 context: context,
                 initialDate: DateTime(_selectedAnio, _selectedMes),
                 firstDate: DateTime(2020),
                 lastDate: DateTime(2030),
               );
-              if (date != null && mounted) {
-                setState(() {
-                  _selectedMes = date.month;
-                  _selectedAnio = date.year;
-                });
-                final usuarioId = context.read<AuthProvider>().user!.id;
-                await provider.loadBudgets(usuarioId, mes: _selectedMes, anio: _selectedAnio);
-              }
+              if (date == null) return;
+              if (!mounted) return;
+
+              final usuarioId = authProvider.user!.id;
+              setState(() {
+                _selectedMes = date.month;
+                _selectedAnio = date.year;
+              });
+              await provider.loadBudgets(usuarioId, mes: _selectedMes, anio: _selectedAnio);
             },
           ),
         ],

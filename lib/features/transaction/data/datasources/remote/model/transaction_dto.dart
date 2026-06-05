@@ -44,7 +44,7 @@ class TransactionDto {
         fecha: DateTime.parse(json['fecha']),
         tipo: json['tipo'],
         esRecurrente: json['es_recurrente'] ?? false,
-        frecuencia: json['frecuencia'],
+        frecuencia: json['frecuencia_recurrencia'] ?? json['frecuencia'],
         metodoPago: json['metodo_pago'] ?? 'efectivo',
         createdAt: DateTime.parse(json['created_at']),
         updatedAt: DateTime.parse(json['updated_at']),

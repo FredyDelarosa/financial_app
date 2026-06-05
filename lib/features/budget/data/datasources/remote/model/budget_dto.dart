@@ -28,7 +28,7 @@ class BudgetDto {
         usuarioId: json['usuario_id'],
         categoriaId: json['categoria_id'],
         mes: json['mes'],
-        anio: json['anio'],
+        anio: json['año'] ?? json['anio'],
         montoLimite: (json['monto_limite'] as num).toDouble(),
         categoriaNombre: json['categoria_nombre'],
         categoriaIcono: json['categoria_icono'],

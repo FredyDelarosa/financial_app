@@ -24,20 +24,26 @@ class CategoryRepositoryImpl implements CategoryRepository {
 
   @override
   Future<List<Category>> getCategories(String usuarioId, {String? tipo}) async {
-    final uri = Uri.parse('${AppConstants.baseUrl}/api/categories${tipo != null ? '?tipo=$tipo' : ''}');
+    final uri = Uri.parse('${AppConstants.baseUrl}/api/categories/').replace(
+      queryParameters: {
+        if (tipo != null) 'tipo': tipo,
+        'usuario_id': usuarioId,
+      },
+    );
     final response = await client.get(uri, headers: await _authHeaders());
     if (response.statusCode == 200) {
-      final List<dynamic> list = jsonDecode(response.body)['data'];
+      final List<dynamic>? data = jsonDecode(response.body)['data'];
+      final List<dynamic> list = data ?? [];
       return list.map((e) => CategoryMapper.toEntity(CategoryDto.fromJson(e))).toList();
     }
-    throw Exception('Error al obtener categorías');
+    throw Exception('Error al obtener categorías: ${response.statusCode}');
   }
 
   @override
   Future<Category> createCategory(String usuarioId, String nombre, String icono, String color, String tipo) async {
     final request = CreateCategoryRequest(nombre: nombre, icono: icono, color: color, tipo: tipo);
     final response = await client.post(
-      Uri.parse('${AppConstants.baseUrl}/api/categories'),
+      Uri.parse('${AppConstants.baseUrl}/api/categories/'),
       headers: await _authHeaders(),
       body: jsonEncode(request.toJson()),
     );

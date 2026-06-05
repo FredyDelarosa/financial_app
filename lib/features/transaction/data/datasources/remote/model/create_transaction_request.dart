@@ -26,7 +26,10 @@ class CreateTransactionRequest {
         'fecha': fecha,
         'tipo': tipo,
         'es_recurrente': esRecurrente,
-        if (frecuencia != null) 'frecuencia': frecuencia,
+        if (frecuencia != null) ...{
+          'frecuencia': frecuencia,
+          'frecuencia_recurrencia': frecuencia,
+        },
         'metodo_pago': metodoPago,
       };
 }

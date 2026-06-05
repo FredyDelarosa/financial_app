@@ -40,14 +40,17 @@ class TransactionRepositoryImpl implements TransactionRepository {
     if (limit != null) queryParams['limit'] = limit.toString();
     if (offset != null) queryParams['offset'] = offset.toString();
 
-    final uri = Uri.parse('${AppConstants.baseUrl}/api/transactions').replace(queryParameters: queryParams);
+    final baseUri = Uri.parse('${AppConstants.baseUrl}/api/transactions/');
+    final uri = queryParams.isEmpty ? baseUri : baseUri.replace(queryParameters: queryParams);
+    
     final response = await client.get(uri, headers: await _authHeaders());
 
     if (response.statusCode == 200) {
-      final List<dynamic> list = jsonDecode(response.body)['data'];
+      final List<dynamic>? data = jsonDecode(response.body)['data'];
+      final List<dynamic> list = data ?? [];
       return list.map((e) => TransactionDto.fromJson(e).toEntity()).toList();
     }
-    throw Exception('Error al obtener transacciones');
+    throw Exception('Error al obtener transacciones: ${response.statusCode}');
   }
 
   @override
@@ -73,7 +76,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
       metodoPago: metodoPago,
     );
     final response = await client.post(
-      Uri.parse('${AppConstants.baseUrl}/api/transactions'),
+      Uri.parse('${AppConstants.baseUrl}/api/transactions/'),
       headers: await _authHeaders(),
       body: jsonEncode(request.toJson()),
     );
@@ -126,11 +129,17 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
   @override
   Future<Map<String, dynamic>> getMonthlySummary(String usuarioId, int year, int month) async {
-    final uri = Uri.parse('${AppConstants.baseUrl}/api/transactions/summary?year=$year&month=$month');
+    final uri = Uri.parse('${AppConstants.baseUrl}/api/transactions/summary').replace(
+      queryParameters: {
+        'year': year.toString(),
+        'month': month.toString().padLeft(2, '0'),
+      },
+    );
     final response = await client.get(uri, headers: await _authHeaders());
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body)['data'];
-      final summary = MonthlySummaryDto.fromJson(data);
+      final summaryData = data['summary'] ?? data;
+      final summary = MonthlySummaryDto.fromJson(summaryData);
       return {
         'mes': summary.mes,
         'anio': summary.anio,

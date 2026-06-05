@@ -28,14 +28,15 @@ class BudgetRepositoryImpl implements BudgetRepository {
     if (anio != null) queryParams['anio'] = anio.toString();
     if (categoriaId != null) queryParams['categoria_id'] = categoriaId;
 
-    final uri = Uri.parse('${AppConstants.baseUrl}/api/budgets').replace(queryParameters: queryParams);
+    final uri = Uri.parse('${AppConstants.baseUrl}/api/budgets/').replace(queryParameters: queryParams);
     final response = await client.get(uri, headers: await _authHeaders());
 
     if (response.statusCode == 200) {
-      final List<dynamic> list = jsonDecode(response.body)['data'];
+      final List<dynamic>? data = jsonDecode(response.body)['data'];
+      final List<dynamic> list = data ?? [];
       return list.map((e) => BudgetDto.fromJson(e).toEntity()).toList();
     }
-    throw Exception('Error al obtener presupuestos');
+    throw Exception('Error al obtener presupuestos: ${response.statusCode}');
   }
 
   @override
@@ -47,7 +48,7 @@ class BudgetRepositoryImpl implements BudgetRepository {
       montoLimite: montoLimite,
     );
     final response = await client.post(
-      Uri.parse('${AppConstants.baseUrl}/api/budgets'),
+      Uri.parse('${AppConstants.baseUrl}/api/budgets/'),
       headers: await _authHeaders(),
       body: jsonEncode(request.toJson()),
     );

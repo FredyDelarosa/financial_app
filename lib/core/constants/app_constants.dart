@@ -1,3 +1,8 @@
+import 'package:flutter/foundation.dart';
+
 class AppConstants {
-  static const String baseUrl = 'http://localhost:8080'; // Cambiar por IP real si es emulador
+  static String get baseUrl {
+    // URL de producción desplegada
+    return 'https://fredy.actividades.icu';
+  }
 }

@@ -15,7 +15,7 @@ class MonthlySummaryDto {
 
   factory MonthlySummaryDto.fromJson(Map<String, dynamic> json) => MonthlySummaryDto(
         mes: json['mes'],
-        anio: json['anio'],
+        anio: json['año'] ?? json['anio'],
         totalIngresos: (json['total_ingresos'] as num).toDouble(),
         totalGastos: (json['total_gastos'] as num).toDouble(),
         balance: (json['balance'] as num).toDouble(),

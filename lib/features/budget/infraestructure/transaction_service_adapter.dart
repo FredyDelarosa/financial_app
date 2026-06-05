@@ -19,22 +19,40 @@ class TransactionServiceAdapter implements TransactionService {
 
   @override
   Future<double> getGastosPorCategoria(String usuarioId, String categoriaId, int mes, int anio) async {
-    final uri = Uri.parse('${AppConstants.baseUrl}/api/transactions/summary/category/$categoriaId?mes=$mes&anio=$anio');
+    final uri = Uri.parse('${AppConstants.baseUrl}/api/transactions/summary').replace(
+      queryParameters: {
+        'year': anio.toString(),
+        'month': mes.toString().padLeft(2, '0'),
+      },
+    );
     final response = await client.get(uri, headers: await _authHeaders());
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body)['data'];
-      return (data['total'] as num).toDouble();
+      final List<dynamic> topGastos = data['top_gastos'] ?? [];
+      final categoriaGasto = topGastos.firstWhere(
+        (g) => g['categoria_id'] == categoriaId,
+        orElse: () => null,
+      );
+      return categoriaGasto != null ? (categoriaGasto['total'] as num).toDouble() : 0.0;
     }
     return 0.0;
   }
 
   @override
   Future<Map<String, double>> getGastosPorCategorias(String usuarioId, int mes, int anio) async {
-    final uri = Uri.parse('${AppConstants.baseUrl}/api/transactions/summary/gastos?mes=$mes&anio=$anio');
+    final uri = Uri.parse('${AppConstants.baseUrl}/api/transactions/summary').replace(
+      queryParameters: {
+        'year': anio.toString(),
+        'month': mes.toString().padLeft(2, '0'),
+      },
+    );
     final response = await client.get(uri, headers: await _authHeaders());
     if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body)['data'];
-      return data.map((key, value) => MapEntry(key, (value as num).toDouble()));
+      final data = jsonDecode(response.body)['data'];
+      final List<dynamic> topGastos = data['top_gastos'] ?? [];
+      return {
+        for (var g in topGastos) g['categoria_nombre'] as String: (g['total'] as num).toDouble()
+      };
     }
     return {};
   }

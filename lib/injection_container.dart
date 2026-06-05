@@ -4,6 +4,7 @@ import 'features/auth/di/auth_module.dart';
 import 'features/category/di/category_module.dart';
 import 'features/transaction/di/transaction_module.dart';
 import 'features/budget/di/budget_module.dart';
+import 'features/goal/di/goal_module.dart';
 
 class InjectionContainer {
   static late final http.Client httpClient;
@@ -12,6 +13,7 @@ class InjectionContainer {
   static late final CategoryModule categoryModule;
   static late final TransactionModule transactionModule;
   static late final BudgetModule budgetModule;
+  static late final GoalModule goalModule;
 
   static Future<void> init() async {
     httpClient = http.Client();
@@ -28,6 +30,10 @@ class InjectionContainer {
       categoryRepository: categoryModule.repository,
     );
     budgetModule = BudgetModule(
+      httpClient: httpClient,
+      getToken: () => prefs.getString('auth_token') ?? '',
+    );
+    goalModule = GoalModule(
       httpClient: httpClient,
       getToken: () => prefs.getString('auth_token') ?? '',
     );
